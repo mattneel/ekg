@@ -26,16 +26,17 @@ end
 def handle_info({:elixir_serial, _serial, data}, state) do
 	# Parse MySensors packet
 	packet = do_mysensors_parse(data)
-    # Generate Ecto changeset
-    changeset = Packet.changeset(%Packet{}, packet)
-    # Do Repo insert
-    case Repo.insert(changeset) do
-      {:ok, _packet} ->
-        Logger.debug "Packet inserted successfully."
-      {:error, changeset} ->
-        Logger.debug Enum.join(changeset.errors)
+    if (packet) do
+        # Generate Ecto changeset
+        changeset = Packet.changeset(%Packet{}, packet)
+        # Do Repo insert
+        case Repo.insert(changeset) do
+        {:ok, _packet} ->
+            Logger.debug "Packet inserted successfully."
+        {:error, changeset} ->
+            Logger.debug Enum.join(changeset.errors)
+        end
     end
-    
     # Return
     {:noreply, state}
 end
@@ -49,14 +50,19 @@ defp send_message(serial, node_id, child_sensor_id, msg_type, ack, subtype, payl
 	Serial.send_data(serial, do_mysensors_encode(node_id, child_sensor_id, msg_type, ack, subtype, payload))
 end
 
+defp do_mysensors_parse([node_id, child_sensor_id, msg_type, ack, subtype, payload]) do
+    do_mysensors_encode(node_id, child_sensor_id, msg_type, ack, subtype, payload)
+end
+
 defp do_mysensors_parse(data) do
-	# Example string: 12;6;0;0;3;My Light\n
-	[a, b, c, d, e, f]  = String.split(String.strip(data), ";")
-	%{"node_id" => a, "child_sensor_id" => b, "msg_type" => c, "ack" => d, "subtype" => e, "payload" => f}
+     args = String.split(String.strip(data), ";")
+     if (length(args) == 6) do
+        do_mysensors_parse(args)
+     end
 end
 
 defp do_mysensors_encode(node_id, child_sensor_id, msg_type, ack, subtype, payload) do
-	%{"node_id" => node_id, "child_sensor_id" => child_sensor_id, "msg_type" => msg_type, "ack" => ack, "subtype" => subtype, "payload" => [payload | "\n"]}
+	%{"node_id" => node_id, "child_sensor_id" => child_sensor_id, "msg_type" => msg_type, "ack" => ack, "subtype" => subtype, "payload" => payload}
 end	
 
 
