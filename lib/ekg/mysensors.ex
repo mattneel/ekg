@@ -6,6 +6,8 @@ alias Ekg.Packet
 @baud_rate 115_200
 
 def start_link(opts, process_opts \\ []) do
+    tty = Keyword.fetch!(opts, :tty)
+    Logger.info "Running Ekg.MySensors using Serial on terminal #{tty}"
     GenServer.start_link(__MODULE__, opts, process_opts)
 end
 
@@ -13,13 +15,11 @@ def command( pid \\ __MODULE__, node_id, child_sensor_id, msg_type, ack, subtype
 def reset( pid \\ __MODULE__), do: GenServer.cast(pid, :reset)
 
 def init(opts) do
-    Logger.debug "MySensors initializing..."
     tty = Keyword.fetch!(opts, :tty)
     {:ok, serial} = Serial.start_link()
     Serial.set_speed(serial, @baud_rate)
     Serial.open(serial, tty)
     Serial.connect(serial)
-    Logger.debug "Opened serial port."
     {:ok, %{serial: serial}}
 end
 
