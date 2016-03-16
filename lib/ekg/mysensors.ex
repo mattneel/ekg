@@ -2,7 +2,7 @@ defmodule Ekg.MySensors do
 require Logger
 use GenServer
 alias Ekg.Packet
-
+alias Ekg.Repo
 @baud_rate 115_200
 
 def start_link(opts, process_opts \\ []) do
@@ -29,7 +29,12 @@ def handle_info({:elixir_serial, _serial, data}, state) do
     # Generate Ecto changeset
     changeset = Packet.changeset(%Packet{}, packet)
     # Do Repo insert
-    Repo.insert(changeset)
+    case Repo.insert(changeset) do
+      {:ok, _packet} ->
+        Logger.debug "Packet inserted successfully."
+      {:error, changeset} ->
+        Logger.debug Enum.join(changeset.errors)
+    end
     
     # Return
     {:noreply, state}

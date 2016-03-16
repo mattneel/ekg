@@ -3,7 +3,7 @@ defmodule Ekg.Packet do
 
   schema "packets" do
     field :node_id, :integer
-    field :child_node_id, :integer
+    field :child_sensor_id, :integer
     field :msg_type, :integer
     field :ack, :integer
     field :subtype, :integer
@@ -12,7 +12,7 @@ defmodule Ekg.Packet do
     timestamps
   end
 
-  @required_fields ~w(node_id child_node_id msg_type ack subtype payload)
+  @required_fields ~w(node_id child_sensor_id msg_type ack subtype payload)
   @optional_fields ~w()
 
   @doc """

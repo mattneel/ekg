@@ -12,7 +12,7 @@ defmodule Ekg.PacketView do
   def render("packet.json", %{packet: packet}) do
     %{id: packet.id,
       node_id: packet.node_id,
-      child_node_id: packet.child_node_id,
+      child_sensor_id: packet.child_sensor_id,
       msg_type: packet.msg_type,
       ack: packet.ack,
       subtype: packet.subtype,
