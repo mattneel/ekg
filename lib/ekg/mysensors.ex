@@ -9,7 +9,7 @@ def start_link(opts, process_opts \\ []) do
     GenServer.start_link(__MODULE__, opts, process_opts)
 end
 
-def command( pid \\ __MODULE__, %{} = packet), do: GenServer.cast(pid, {:command, packet})
+def command( pid \\ __MODULE__, node_id, child_sensor_id, msg_type, ack, subtype, payload), do: GenServer.cast(pid, {:command, node_id, child_sensor_id, msg_type, ack, subtype, payload})
 def reset( pid \\ __MODULE__), do: GenServer.cast(pid, :reset)
 
 def init(opts) do
@@ -35,13 +35,13 @@ def handle_info({:elixir_serial, _serial, data}, state) do
     {:noreply, state}
 end
 
-def handle_cast({:command, %{} = packet}, %{serial: device} = state) do
-    send_message(device, packet)
+def handle_cast({:command, node_id, child_sensor_id, msg_type, ack, subtype, payload}, %{serial: device} = state) do
+    send_message(device, node_id, child_sensor_id, msg_type, ack, subtype, payload)
     {:noreply, state}
 end
 
-defp send_message(serial, %{} = packet) do
-	Serial.send_data(serial, do_mysensors_encode(packet))
+defp send_message(serial, node_id, child_sensor_id, msg_type, ack, subtype, payload) do
+	Serial.send_data(serial, do_mysensors_encode(node_id, child_sensor_id, msg_type, ack, subtype, payload))
 end
 
 defp do_mysensors_parse(data) do
@@ -50,8 +50,8 @@ defp do_mysensors_parse(data) do
 	%{"node_id" => a, "child_sensor_id" => b, "msg_type" => c, "ack" => d, "subtype" => e, "payload" => f}
 end
 
-defp do_mysensors_encode(%{} = packet) do
-	%{node_id: packet.node_id, child_sensor_id: packet.child_sensor_id, msg_type: packet.msg_type, ack: packet.ack, subtype: packet.subtype, payload: [packet.payload | "\n"]}
+defp do_mysensors_encode(node_id, child_sensor_id, msg_type, ack, subtype, payload) do
+	%{"node_id" => node_id, "child_sensor_id" => child_sensor_id, "msg_type" => msg_type, "ack" => ack, "subtype" => subtype, "payload" => [payload | "\n"]}
 end	
 
 
