@@ -8,5 +8,6 @@ defmodule Ekg.Router do
   scope "/api/v1", Ekg do
     pipe_through :api
     resources "/packets", PacketController, except: [:new, :edit]
+    resources "/command", CommandController, except: [:new, :edit, :index, :show, :update, :delete]
   end
 end
