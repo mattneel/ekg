@@ -33,8 +33,8 @@ def handle_info({:elixir_serial, _serial, data}, state) do
         case Repo.insert(changeset) do
         {:ok, _packet} ->
             Logger.debug "Packet inserted successfully."
-        {:error, changeset} ->
-            Logger.debug Enum.join(changeset.errors)
+        {:error, _changeset} ->
+            Logger.debug "Invalid packet: #{data}"
         end
     end
     # Return
