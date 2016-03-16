@@ -47,7 +47,7 @@ def handle_cast({:command, node_id, child_sensor_id, msg_type, ack, subtype, pay
 end
 
 defp send_message(serial, node_id, child_sensor_id, msg_type, ack, subtype, payload) do
-	Serial.send_data(serial, do_mysensors_encode(node_id, child_sensor_id, msg_type, ack, subtype, payload))
+	Serial.send_data(serial, packet_to_string(node_id, child_sensor_id, msg_type, ack, subtype, payload))
 end
 
 defp do_mysensors_parse([node_id, child_sensor_id, msg_type, ack, subtype, payload]) do
@@ -59,6 +59,10 @@ defp do_mysensors_parse(data) do
      if (length(args) == 6) do
         do_mysensors_parse(args)
      end
+end
+
+defp packet_to_string(node_id, child_sensor_id, msg_type, ack, subtype, payload) do
+    "#{node_id};#{child_sensor_id};#{msg_type};#{ack};#{subtype};#{payload}\n"
 end
 
 defp do_mysensors_encode(node_id, child_sensor_id, msg_type, ack, subtype, payload) do
