@@ -53,7 +53,9 @@ def parse([node_id, child_sensor_id, msg_type, ack, subtype, payload]) do
 end
     
 def parse(data) do
-    data |> String.strip |> String.split(";") |> parse
+    if (length(String.split(data, ";")) == 6) do
+        data |> String.strip |> String.split(";") |> parse
+    end
 end
 
 def handle_cast({:command, node_id, child_sensor_id, msg_type, ack, subtype, payload}, %{serial: device} = state) do   
