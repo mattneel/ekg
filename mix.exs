@@ -20,7 +20,7 @@ defmodule Ekg.Mixfile do
     [mod: {Ekg, []},
      applications: [:nerves, :phoenix, :cowboy, :logger, 
                     :nerves_networking, :nerves_ssdp_server, :nerves_lib, :gettext,
-                    :phoenix_ecto, :sqlite_ecto, :serial]]
+                    :phoenix_ecto, :phoenix_pubsub, :sqlite_ecto, :serial]]
   end
 
   # Specifies which paths to compile per environment.
