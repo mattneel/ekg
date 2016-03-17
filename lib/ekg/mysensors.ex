@@ -59,7 +59,9 @@ def parse(data) do
 end
 
 def handle_cast({:command, node_id, child_sensor_id, msg_type, ack, subtype, payload}, %{serial: device} = state) do   
-	Serial.send_data(device, packet_to_string(parse([node_id, child_sensor_id, msg_type, ack, subtype, payload])))
+	data = packet_to_string(parse([node_id, child_sensor_id, msg_type, ack, subtype, payload]))
+    Serial.send_data(device, data)
+    Logger.debug "Sending: #{data}"
     {:noreply, state}
 end
 
