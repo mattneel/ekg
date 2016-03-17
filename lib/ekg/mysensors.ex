@@ -15,6 +15,8 @@ def command( pid \\ __MODULE__, node_id, child_sensor_id, msg_type, ack, subtype
 def reset( pid \\ __MODULE__), do: GenServer.cast(pid, :reset)
 
 def init(opts) do
+    # Enable the Serial port in capemgr.
+    File.write("/sys/devices/bone_capemgr.9/slots","BB-UART4")
     tty = Keyword.fetch!(opts, :tty)
     {:ok, serial} = Serial.start_link()
     Serial.set_speed(serial, @baud_rate)
