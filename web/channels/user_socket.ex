@@ -3,10 +3,10 @@ defmodule Ekg.UserSocket do
 
   ## Channels
   # channel "rooms:*", Ekg.RoomChannel
-
+  channel "sensors:*", Ekg.SensorsChannel
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
-  # transport :longpoll, Phoenix.Transports.LongPoll
+  transport :longpoll, Phoenix.Transports.LongPoll
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After

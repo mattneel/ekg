@@ -18,7 +18,8 @@ defmodule Ekg.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [mod: {Ekg, []},
-     applications: [:phoenix, :cowboy, :logger, :gettext,
+     applications: [:nerves, :phoenix, :cowboy, :logger, 
+                    :nerves_networking, :nerves_ssdp_server, :nerves_lib, :gettext,
                     :phoenix_ecto, :sqlite_ecto, :serial]]
   end
 
@@ -30,7 +31,11 @@ defmodule Ekg.Mixfile do
   #
   # Type `mix help deps` for examples and options.
   defp deps do
-    [{:phoenix, github: "phoenixframework/phoenix", override: true},
+    [{:nerves, "~> 0.2"},
+    {:nerves_lib, github: "nerves-project/nerves_lib"},
+    {:nerves_networking, github: "nerves-project/nerves_networking", tag: "v0.6.0"},
+    {:nerves_ssdp_server, github: "nerves-project/nerves_ssdp_server"},
+     {:phoenix, github: "phoenixframework/phoenix", override: true},
      {:phoenix_ecto, "~> 2.0"},
      {:sqlite_ecto, ">= 0.0.0"},
      {:gettext, "~> 0.9"},

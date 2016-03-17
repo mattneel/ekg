@@ -24,8 +24,9 @@ def init(opts) do
 end
 
 def handle_info({:elixir_serial, _serial, data}, state) do
-	# Parse MySensors packet
-	packet = do_mysensors_parse(data)
+	Logger.debug "Incoming packet: #{data}"
+    # Parse MySensors packet
+	packet = parse(data)
     if (packet) do
         # Generate Ecto changeset
         changeset = Packet.changeset(%Packet{}, packet)
@@ -33,6 +34,7 @@ def handle_info({:elixir_serial, _serial, data}, state) do
         case Repo.insert(changeset) do
         {:ok, _packet} ->
             Logger.debug "Packet inserted successfully."
+            Ekg.Endpoint.broadcast!("sensors:lobby", "new_msg", packet)
         {:error, _changeset} ->
             Logger.debug "Invalid packet: #{data}"
         end
@@ -41,33 +43,26 @@ def handle_info({:elixir_serial, _serial, data}, state) do
     {:noreply, state}
 end
 
-def handle_cast({:command, node_id, child_sensor_id, msg_type, ack, subtype, payload}, %{serial: device} = state) do
-    send_message(device, node_id, child_sensor_id, msg_type, ack, subtype, payload)
+def parse([node_id, child_sensor_id, msg_type, ack, subtype, payload]) do
+        %{:node_id => node_id,
+        :child_sensor_id => child_sensor_id,
+        :msg_type => msg_type,
+        :ack => ack,
+        :subtype => subtype,
+        :payload => payload}    
+end
+    
+def parse(data) do
+    data |> String.strip |> String.split(";") |> parse
+end
+
+def handle_cast({:command, node_id, child_sensor_id, msg_type, ack, subtype, payload}, %{serial: device} = state) do   
+	Serial.send_data(device, packet_to_string(parse([node_id, child_sensor_id, msg_type, ack, subtype, payload])))
     {:noreply, state}
 end
 
-defp send_message(serial, node_id, child_sensor_id, msg_type, ack, subtype, payload) do
-	Serial.send_data(serial, packet_to_string(node_id, child_sensor_id, msg_type, ack, subtype, payload))
-end
-
-defp do_mysensors_parse([node_id, child_sensor_id, msg_type, ack, subtype, payload]) do
-    do_mysensors_encode(node_id, child_sensor_id, msg_type, ack, subtype, payload)
-end
-
-defp do_mysensors_parse(data) do
-     args = String.split(String.strip(data), ";")
-     if (length(args) == 6) do
-        do_mysensors_parse(args)
-     end
-end
-
-defp packet_to_string(node_id, child_sensor_id, msg_type, ack, subtype, payload) do
+defp packet_to_string(%{:node_id => node_id, :child_sensor_id => child_sensor_id, :msg_type => msg_type, :ack => ack, :subtype => subtype, :payload => payload}) do
     "#{node_id};#{child_sensor_id};#{msg_type};#{ack};#{subtype};#{payload}\n"
 end
-
-defp do_mysensors_encode(node_id, child_sensor_id, msg_type, ack, subtype, payload) do
-	%{"node_id" => node_id, "child_sensor_id" => child_sensor_id, "msg_type" => msg_type, "ack" => ack, "subtype" => subtype, "payload" => payload}
-end	
-
 
 end
