@@ -11,7 +11,7 @@ defmodule Ekg do
       supervisor(Ekg.Endpoint, []),
       # Start the Ecto repository
       supervisor(Ekg.Repo, []),
-      supervisor(Ekg.MySensors, [[tty: "/dev/pts/3"], [name: :mysensors]])
+      supervisor(Ekg.MySensors, [[tty: "/dev/ttyO4"], [name: :mysensors]])
       # Here you could define other workers and supervisors as children
       # worker(Ekg.Worker, [arg1, arg2, arg3]),
     ]
